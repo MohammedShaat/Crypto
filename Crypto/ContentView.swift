@@ -9,25 +9,23 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        ZStack {
-            Color.theme.background
-            
+        NavigationStack {
             VStack {
-                Circle()
-                    .frame(width: 100, height: 100)
-                    .foregroundStyle(.theme.accent)
+                Text("HomeView")
+            }
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Live Pirces")
+                        .font(.headline)
+                }
                 
-                Circle()
-                    .frame(width: 100, height: 100)
-                    .foregroundStyle(.theme.green)
+                ToolbarItem(placement: .topBarTrailing) {
+                    Label("Profile", systemImage: "chevron.right")
+                }
                 
-                Circle()
-                    .frame(width: 100, height: 100)
-                    .foregroundStyle(.theme.red)
-                
-                Circle()
-                    .frame(width: 100, height: 100)
-                    .foregroundStyle(.theme.secondaryText)
+                ToolbarItem(placement: .topBarLeading) {
+                    Label("Profile", systemImage: "chevron.right")
+                }
             }
         }
     }
