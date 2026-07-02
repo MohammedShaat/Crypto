@@ -49,9 +49,5 @@ extension HomeView {
         enum ActiveView {
             case coins, profile
         }
-        
-        enum LoadingStatus {
-            case idle, loading, success, failure(String)
-        }
     }
 }

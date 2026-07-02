@@ -8,9 +8,10 @@
 import Foundation
 
 struct CoinImageService {
+    static let shared = CoinImageService()
     private init() { }
     
-    static func getImage(from url: String) async -> Result<Data, NetworkError> {
+    func getImage(from url: String) async -> Result<Data, NetworkError> {
         await NetworkService.fetchData(from: url)
     }
 }
