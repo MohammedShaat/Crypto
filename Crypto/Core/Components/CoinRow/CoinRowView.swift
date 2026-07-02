@@ -83,6 +83,7 @@ extension CoinRowView {
                     ? .theme.green
                     : .theme.red
                 )
+                .font(.subheadline)
         }
         .containerRelativeFrame(.horizontal, alignment: .trailing) { width, _ in
             width * 0.25
