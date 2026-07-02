@@ -8,44 +8,46 @@
 import SwiftUI
 
 struct CoinRowView: View {
-    let coin: Coin
-    let showHoldings: Bool
+    @State private var viewModel: ViewModel
     
     var body: some View {
         HStack {
-            Text(coin.rank, format: .number)
+            Text(viewModel.coin.rank, format: .number)
                 .foregroundStyle(.theme.secondaryText)
             
-            AsyncImage(url: URL(string: coin.image)) { image in
+            AsyncImage(url: URL(string: viewModel.coin.image)) { image in
                 image
                     .resizable()
                     .scaledToFit()
                     .frame(width: 40, height: 40)
             } placeholder: {
                 ProgressView()
+                    .frame(width: 40, height: 40)
             }
             
-            Text(coin.symbol.uppercased())
+            
+            
+            Text(viewModel.coin.symbol.uppercased())
                 .font(.headline)
             
             Spacer()
             
             // Mid column
-            if showHoldings {
+            if viewModel.showHoldings {
                 VStack(alignment: .trailing) {
-                    Text(coin.totalCurrentHodldings.asCurrency)
+                    Text(viewModel.coin.totalCurrentHodldings.asCurrency)
                     
-                    Text(coin.currentHoldings ?? 0, format: .number)
+                    Text(viewModel.coin.currentHoldings ?? 0, format: .number)
                 }
             }
             
             // Right column
             VStack(alignment: .trailing) {
-                Text(coin.currentPrice.asCurrency)
+                Text(viewModel.coin.currentPrice.asCurrency)
                 
-                Text(coin.priceChangePercentage24h.asPercentage)
+                Text(viewModel.coin.priceChangePercentage24h.asPercentage)
                     .foregroundStyle(
-                        coin.priceChangePercentage24h ?? 0 >= 0
+                        viewModel.coin.priceChangePercentage24h ?? 0 >= 0
                         ? .theme.green
                         : .theme.red
                     )
@@ -56,6 +58,11 @@ struct CoinRowView: View {
         }
         .padding()
         .foregroundStyle(.theme.accent)
+    }
+    
+    init(coin: Coin, showHoldings: Bool) {
+        let viewModel = ViewModel(coin: coin, showHoldings: showHoldings)
+        _viewModel = .init(initialValue: viewModel)
     }
 }
 
