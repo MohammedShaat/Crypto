@@ -10,7 +10,7 @@ import Foundation
 extension HomeView {
     @Observable
     class ViewModel {
-        private let networkService = CoinDataService.shared
+        private let CoinService = CoinDataService.shared
         private(set) var coins = [Coin]()
         private(set) var activeView: ActiveView = .coins
         private(set) var loadingStatus: LoadingStatus = .idle
@@ -24,7 +24,7 @@ extension HomeView {
         func loadCoins() async  {
             loadingStatus = .loading
             
-            let result = await networkService.fetchData()
+            let result = await CoinService.fetchCoins()
             switch result {
             case .success(let networkCoins):
                 coins = networkCoins
