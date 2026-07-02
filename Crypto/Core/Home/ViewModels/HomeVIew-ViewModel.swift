@@ -10,6 +10,7 @@ import Foundation
 extension HomeView {
     @Observable
     class ViewModel {
+        private let networkService = CoinDataService.shared
         private(set) var coins = [Coin]()
         private(set) var activeView: ActiveView = .coins
         private(set) var loadingStatus: LoadingStatus = .idle
@@ -20,36 +21,29 @@ extension HomeView {
             }
         }
         
-        func switchView() {
-            activeView = activeView == .coins ? .profile : .coins
-        }
-        
-        private func loadCoins() async {
+        func loadCoins() async  {
             loadingStatus = .loading
             
-            guard let url = URL(string: "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=true&price_change_percentage=24h") else {
-                
-                loadingStatus = .failure("Invalid URL")
-                print("Invalid URL")
-                return
-            }
-            
-            do {
-                let (data, response) = try await URLSession.shared.data(from: url)
-                guard let response = response as? HTTPURLResponse, (200...299).contains(response.statusCode) else {
-                    loadingStatus = .failure("Bad response")
-                    print("Bad response: \(response)")
-                    return
-                }
-                
-                coins = try JSONDecoder().decode([Coin].self, from: data)
+            let result = await networkService.fetchData()
+            switch result {
+            case .success(let networkCoins):
+                coins = networkCoins
                 loadingStatus = .success
-                print(coins.count)
-            } catch {
-                loadingStatus = .failure(error.localizedDescription)
-                print("Failed to load data: \(error.localizedDescription)")
-                print(error)
+                
+            case .failure(let error):
+                switch error {
+                case .invalidURL:
+                    loadingStatus = .failure("Invalid URL")
+                case .badResponse:
+                    loadingStatus = .failure("Bad Response")
+                case .unknown(_):
+                    loadingStatus = .failure("Unkown error")
+                }
             }
+        }
+        
+        func switchView() {
+            activeView = activeView == .coins ? .profile : .coins
         }
         
         enum ActiveView {
