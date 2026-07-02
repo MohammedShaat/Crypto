@@ -19,7 +19,7 @@ extension HomeView {
                 Button {
                     leadingAction()
                 } label: {
-                    HeaderButtonImageView(icon: showProfile ? "xmark" : "info")
+                    HeaderButtonImageView(icon: showProfile ? "plus" : "info")
                 }
 
                 Spacer()
