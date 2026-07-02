@@ -8,14 +8,12 @@
 import Foundation
 
 struct NetworkService {
-    static let shared = NetworkService()
-    
     private init() { }
     
-    func fetchData<Value: Decodable>(from url: String) async -> Result<Value, NetworkError> {
+    static func fetchData<Value: Decodable>(from url: String) async -> Result<Value, NetworkError> {
         
         guard let url = URL(string: url) else {
-            print("Invalid URL")
+            print("Invalid URL: \(url)")
             return .failure(.invalidURL)
         }
         

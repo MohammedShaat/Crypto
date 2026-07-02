@@ -36,8 +36,8 @@ extension HomeView {
                     loadingStatus = .failure("Invalid URL")
                 case .badResponse:
                     loadingStatus = .failure("Bad Response")
-                case .unknown(_):
-                    loadingStatus = .failure("Unkown error")
+                case .unknown:
+                    loadingStatus = .failure("Unexpected error occured")
                 }
             }
         }
