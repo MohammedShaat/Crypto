@@ -12,8 +12,17 @@ extension HomeView {
     class ViewModel {
         private let CoinService = CoinDataService.shared
         
-        private(set) var coins = [Coin]()
         private(set) var activeView: ActiveView = .coins
+        private var _coins = [Coin]()
+        var coins: [Coin] {
+            if searchText.isEmpty {
+                return _coins
+            } else {
+                return _coins.filter { coin in
+                    coin.name.localizedStandardContains(searchText) || coin.symbol.localizedStandardContains(searchText)
+                }
+            }
+        }
         private(set) var loadingStatus: LoadingStatus = .idle
         var searchText = ""
         
@@ -29,7 +38,7 @@ extension HomeView {
             let result = await CoinService.fetchCoins()
             switch result {
             case .success(let networkCoins):
-                coins = networkCoins
+                _coins = networkCoins
                 loadingStatus = .success
                 
             case .failure(let error):
