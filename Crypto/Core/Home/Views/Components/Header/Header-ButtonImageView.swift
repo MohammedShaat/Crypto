@@ -17,7 +17,7 @@ struct HeaderButtonImageView: View {
             .foregroundStyle(.primary)
             .background(.theme.background)
             .clipShape(.circle)
-            .shadow(color: .theme.accent, radius: 5)
+            .shadow(color: .theme.accent.opacity(0.5), radius: 5)
     }
 }
 

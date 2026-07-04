@@ -9,32 +9,38 @@ import SwiftUI
 
 struct SearchBarView: View {
     @Binding var text: String
+    let onSubmit: (() -> Void)? = nil
+    @FocusState private var searchFocus: Bool
     
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
+                .foregroundStyle( text.isEmpty ? .theme.secondaryText : .theme.accent)
             
-            TextField(
-                "",
-                text: $text,
-                prompt: Text("Search by name or symbol")
-                    .foregroundStyle(.theme.secondaryText)
-            )
-            .foregroundStyle(.theme.green)
+            TextField("Search by name or symbol", text: $text)
+                .foregroundStyle(.theme.accent)
+                .focused($searchFocus)
+                .onSubmit {
+                    searchFocus.toggle()
+                    onSubmit?()
+                }
             
             if !text.isEmpty {
                 Image(systemName: "xmark")
+                    .padding(.horizontal)
+                    .offset(x: -10)
                     .onTapGesture(perform: clear)
             }
         }
         .padding()
         .background(.theme.background)
         .clipShape(.capsule)
-        .shadow(color: .theme.accent, radius: 5)
+        .shadow(color: .theme.accent.opacity(0.5), radius: 5)
     }
     
     func clear() {
         text = ""
+        searchFocus.toggle()
     }
 }
 
