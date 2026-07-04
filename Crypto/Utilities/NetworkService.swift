@@ -10,7 +10,7 @@ import Foundation
 struct NetworkService {
     private init() { }
     
-    static func fetchData<Value: Decodable>(from url: String) async -> Result<Value, NetworkError> {
+    static func fetchData(from url: String) async -> Result<Data, NetworkError> {
         
         guard let url = URL(string: url) else {
             print("Invalid URL: \(url)")
@@ -26,13 +26,28 @@ struct NetworkService {
                 return .failure(.badResponse)
             }
             
-            let decodedData = try JSONDecoder().decode(Value.self, from: data)
-            return .success(decodedData)
+            return .success(data)
             
         } catch {
             print("Failed to load data: \(error.localizedDescription)")
             print(error)
             return .failure(.unknown(error))
+        }
+    }
+    
+    static func fetchDecodedData<T: Decodable>(from url: String) async -> Result<T, NetworkError> {
+        let result = await fetchData(from: url)
+        switch result {
+        case .success(let data):
+            do {
+                let decodedData = try JSONDecoder().decode(T.self, from: data)
+                return .success(decodedData)
+            } catch {
+                return .failure(.unknown(error))
+            }
+            
+        case .failure(let error):
+            return .failure(error)
         }
     }
 }
