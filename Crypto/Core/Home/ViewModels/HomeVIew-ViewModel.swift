@@ -10,9 +10,9 @@ import Foundation
 extension HomeView {
     @Observable
     class ViewModel {
-        private let CoinService = CoinDataService.shared
-        
         private(set) var activeView: ActiveView = .coins
+
+        private let CoinService = CoinDataService.shared
         private var _coins = [Coin]()
         var coins: [Coin] {
             if searchText.isEmpty {
@@ -26,10 +26,15 @@ extension HomeView {
         private(set) var loadingStatus: LoadingStatus = .idle
         var searchText = ""
         
+        private let marketService = MarketService.shared
+        private(set) var marketStatistics: MarketStatistics?
+        
         init() {
             Task {
                 await loadCoins()
             }
+            
+            loadMarketStatistics()
         }
         
         func loadCoins() async  {
@@ -49,6 +54,20 @@ extension HomeView {
                     loadingStatus = .failure("Bad Response")
                 case .unknown:
                     loadingStatus = .failure("Unexpected error occured")
+                }
+            }
+        }
+        
+        func loadMarketStatistics() {
+            Task {
+                let result = await marketService.fetchMarketStatistics()
+                switch result {
+                case .success(let networkMarketResult):
+                    print(networkMarketResult)
+                    marketStatistics = networkMarketResult.data
+                
+                case .failure(let error):
+                    print("Failed to fetch market statistics: \(error)")
                 }
             }
         }
