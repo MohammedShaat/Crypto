@@ -9,7 +9,7 @@ import SwiftUI
 
 struct StatisticView: View {
     let statistic: Statistic
-
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text(statistic.name)
@@ -17,33 +17,34 @@ struct StatisticView: View {
                 .font(.subheadline)
                 .padding(.bottom, 5)
             
-            Text(statistic.value)
+            Text(statistic.value.asAbreviatedCurrency)
                 .foregroundStyle(.theme.accent)
-                .font(.headline)
+                .font(.title3)
             
             if let percentage = statistic.percentage {
                 Label(
                     percentage.asPercentage,
                     systemImage: percentage >= 0 ? "arrowtriangle.up.fill" : "arrowtriangle.down.fill"
                 )
-                    .font(.subheadline.bold())
-                    .foregroundStyle(percentage >= 0 ? .theme.green : .theme.red)
+                .font(.subheadline.bold())
+                .foregroundStyle(percentage >= 0 ? .theme.green : .theme.red)
             }
-                
         }
+        .padding(.horizontal, 10)
     }
 }
 
 #Preview {
-    StatisticView(statistic: Preview.statistics[0])
-        .preferredColorScheme(.dark)
-        .padding(30)
-    
-    StatisticView(statistic: Preview.statistics[1])
-        .preferredColorScheme(.dark)
-        .padding(30)
-    
-    StatisticView(statistic: Preview.statistics[2])
-        .preferredColorScheme(.dark)
-        .padding(30)
+    HStack {
+        StatisticView(statistic: Preview.statistics[0])
+            .preferredColorScheme(.dark)
+        Spacer()
+        
+        StatisticView(statistic: Preview.statistics[1])
+            .preferredColorScheme(.dark)
+        Spacer()
+        
+        StatisticView(statistic: Preview.statistics[2])
+            .preferredColorScheme(.dark)
+    }
 }

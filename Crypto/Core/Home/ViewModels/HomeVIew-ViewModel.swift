@@ -13,6 +13,7 @@ extension HomeView {
         private(set) var activeView: ActiveView = .coins
 
         private let CoinService = CoinDataService.shared
+        var searchText = ""
         private var _coins = [Coin]()
         var coins: [Coin] {
             if searchText.isEmpty {
@@ -24,10 +25,9 @@ extension HomeView {
             }
         }
         private(set) var loadingStatus: LoadingStatus = .idle
-        var searchText = ""
         
         private let marketService = MarketService.shared
-        private(set) var marketStatistics: MarketStatistics?
+        private(set) var statistics = [Statistic]()
         
         init() {
             Task {
@@ -63,13 +63,32 @@ extension HomeView {
                 let result = await marketService.fetchMarketStatistics()
                 switch result {
                 case .success(let networkMarketResult):
-                    print(networkMarketResult)
-                    marketStatistics = networkMarketResult.data
+                    getStatistics(for: networkMarketResult.data)
                 
                 case .failure(let error):
                     print("Failed to fetch market statistics: \(error)")
                 }
             }
+        }
+        
+        private func getStatistics(for marketStatistics: MarketStatistics) {
+            //            for (coin, value) in totalMarketCap {
+            //                let statistic = Statistic(
+            //                    name: coin,
+            //                    value: value.asAbreviatedCurrency,
+            //                    percentage: marketStatistics.marketCapPercentage[coin]
+            //                )
+            //                statistics.append(statistic)
+            //            }
+            
+            let marketCap = Statistic(name: "Market Cap", value: marketStatistics.totalMarketCap["usd"] ?? 0, percentage: marketStatistics.marketCapChangePercentage24hUsd)
+            
+            let volume = Statistic(name: "24h Volume", value: marketStatistics.totalVolume["usd"] ?? 0, percentage: marketStatistics.marketCapPercentage["usd"])
+            
+            let btcDominance = Statistic(name: "BTC Dominance", value: marketStatistics.marketCapPercentage["btc"] ?? 0, percentage: marketStatistics.marketCapPercentage["btc"])
+            
+            let profile = Statistic(name: "Profile Value", value: 0)
+            statistics.append(contentsOf: [marketCap, volume, btcDominance, profile])
         }
         
         func switchView() {

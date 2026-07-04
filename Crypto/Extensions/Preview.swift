@@ -121,9 +121,9 @@ extension Preview {
     ]
     
     static let statistics = [
-        Statistic(name: "Mark Cap", value: "12.5Tr", percentage: 1.180670354),
-        Statistic(name: "Total Volume", value: "1.0Bn", percentage: -2.910657436),
-        Statistic(name: "Total Volume2", value: "1.0Bn"),
+        Statistic(name: "Mark Cap", value: 12865287645258, percentage: 1.180670354),
+        Statistic(name: "Total Volume", value: 5648137, percentage: -2.910657436),
+        Statistic(name: "Total Volume2", value: 9568197369),
         
     ]
     #endif
