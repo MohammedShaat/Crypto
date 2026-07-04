@@ -21,6 +21,9 @@ struct HomeView: View {
                     }
                 }
                 
+                SearchBarView(text: $viewModel.searchText)
+                    .padding()
+                
                 categoriesRow
                 
                 Spacer()
@@ -38,6 +41,7 @@ struct HomeView: View {
                     case .coins:
                         allCoinsList
                             .transition(.move(edge: .leading))
+                        
                     case .profile:
                         profileCoinsList
                             .transition(.move(edge: .trailing))
