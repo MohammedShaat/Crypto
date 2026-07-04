@@ -119,5 +119,12 @@ extension Preview {
             currentHoldings: 2.4
         )
     ]
+    
+    static let statistics = [
+        Statistic(name: "Mark Cap", value: "12.5Tr", percentage: 1.180670354),
+        Statistic(name: "Total Volume", value: "1.0Bn", percentage: -2.910657436),
+        Statistic(name: "Total Volume2", value: "1.0Bn"),
+        
+    ]
     #endif
 }
