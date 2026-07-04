@@ -11,9 +11,11 @@ extension HomeView {
     @Observable
     class ViewModel {
         private let CoinService = CoinDataService.shared
+        
         private(set) var coins = [Coin]()
         private(set) var activeView: ActiveView = .coins
         private(set) var loadingStatus: LoadingStatus = .idle
+        var searchText = ""
         
         init() {
             Task {
