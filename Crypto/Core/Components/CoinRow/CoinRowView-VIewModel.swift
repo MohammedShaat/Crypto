@@ -26,7 +26,7 @@ extension CoinRowView {
         private func loadImage() {
             imageStatus = .loading
             Task {
-                let result = await coinImageService.getImage(from: coin.image)
+                let result = await coinImageService.getImage(for: coin.id, from: coin.image)
                 
                 switch result {
                 case .success(let data):
