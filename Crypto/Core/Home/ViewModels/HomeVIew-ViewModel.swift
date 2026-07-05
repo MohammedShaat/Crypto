@@ -29,6 +29,15 @@ extension HomeView {
         private let marketService = MarketService.shared
         private(set) var statistics = [Statistic]()
         
+        var showingEditProfile = false
+        var tappedCoin: Coin?
+        var newHoldings: Double?
+        var totalHoldings: Double {
+            (tappedCoin?.currentPrice ?? 0) * (newHoldings ?? 0)
+        }
+        var showingSaveButton = false
+        private(set) var showingSaveIcon = false
+        
         init() {
             Task {
                 await loadCoins()
@@ -93,6 +102,39 @@ extension HomeView {
         
         func switchView() {
             activeView = activeView == .coins ? .profile : .coins
+        }
+        
+        func topLeadingButtonTapped() {
+            if activeView == .profile {
+                showingEditProfile.toggle()
+            }
+        }
+        
+        func coinTapped(_ coin: Coin) {
+            tappedCoin = coin
+            newHoldings = coin.currentHoldings
+        }
+        
+        func newHoldingsChanged() {
+            guard let newHoldings else { return }
+            showingSaveButton = newHoldings != tappedCoin?.currentHoldings && newHoldings > 0
+        }
+        
+        func save() {
+            let emptyTappedCoin = { self.tappedCoin = nil }
+            guard let tappedCoin, let newHoldings else { return }
+            
+            let newCoin = tappedCoin.updateHoldings(amount: newHoldings)
+            showingSaveButton = false
+            showingSaveIcon = true
+            emptyTappedCoin()
+            
+            Task {
+                try? await Task.sleep(for: .seconds(1))
+                showingSaveIcon = false
+            }
+            
+            print("Saved new holdings!")
         }
         
         enum ActiveView {
