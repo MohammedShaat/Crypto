@@ -15,6 +15,10 @@ extension Double {
     var asPercentage: String {
         self.formatted(.number.precision(.fractionLength(2))) + "%"
     }
+    
+    var asAbreviatedCurrency: String {
+        "$" + self.formatted(.number.notation(.compactName))
+    }
 }
 
 extension Double? {

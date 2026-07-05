@@ -21,6 +21,8 @@ struct HomeView: View {
                     }
                 }
                 
+                marketStatistics
+                
                 SearchBarView(text: $viewModel.searchText)
                     .padding()
                 
@@ -103,6 +105,18 @@ extension HomeView {
                 .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
         }
         .listStyle(.plain)
+    }
+    
+    private var marketStatistics: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(alignment: .top) {
+                ForEach(viewModel.statistics) { statistic in
+                    StatisticView(statistic: statistic)
+                }
+            }
+            .padding(.horizontal)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
     }
 }
 

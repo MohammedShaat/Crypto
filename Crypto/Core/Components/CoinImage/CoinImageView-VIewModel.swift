@@ -7,34 +7,34 @@
 
 import Foundation
 
-extension CoinRowView {
+extension CoinImageView {
     @Observable
     class ViewModel {
         private let coinImageService = CoinImageService.shared
-        let coin: Coin
-        let showHoldings: Bool
+        let id: String
+        let imageUrl: String
         private(set) var image: Data?
-        private(set) var imageStatus = LoadingStatus.idle
+        private(set) var loadingStatus = LoadingStatus.idle
         
-        init(coin: Coin, showHoldings: Bool) {
-            self.coin = coin
-            self.showHoldings = showHoldings
+        init(id: String, imageUrl: String) {
+            self.id = id
+            self.imageUrl = imageUrl
             
             loadImage()
         }
         
         private func loadImage() {
-            imageStatus = .loading
+            loadingStatus = .loading
             Task {
-                let result = await coinImageService.getImage(for: coin.id, from: coin.image)
+                let result = await coinImageService.getImage(for: id, from: imageUrl)
                 
                 switch result {
                 case .success(let data):
                     image = data
-                    imageStatus = .success
+                    loadingStatus = .success
                     
                 case .failure:
-                    imageStatus = .failure("Failed to load image")
+                    loadingStatus = .failure("Failed to load image")
                 }
             }
         }
