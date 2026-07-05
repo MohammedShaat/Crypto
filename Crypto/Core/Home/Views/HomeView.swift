@@ -14,7 +14,7 @@ struct HomeView: View {
         NavigationStack {
             VStack {
                 HeaderView(showProfile: viewModel.activeView == .profile) {
-                    
+                    viewModel.topLeadingButtonTapped()
                 } trailingAction: {
                     withAnimation {
                         viewModel.switchView()
@@ -60,7 +60,11 @@ struct HomeView: View {
                 Spacer()
             }
             .toolbar(.hidden)
+            .sheet(isPresented: $viewModel.showingEditProfile) {
+                EditPortfolioView()
+            }
         }
+        .environment(viewModel)
     }
 }
 

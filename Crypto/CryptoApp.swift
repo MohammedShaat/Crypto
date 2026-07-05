@@ -14,4 +14,9 @@ struct CryptoApp: App {
             HomeView()
         }
     }
+    
+    init() {
+        UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(Color.theme.accent)]
+        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color.theme.accent)]
+    }
 }
