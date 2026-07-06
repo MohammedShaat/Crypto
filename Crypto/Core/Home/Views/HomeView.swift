@@ -131,14 +131,28 @@ extension HomeView {
     }
     
     private var marketStatistics: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(alignment: .top) {
-                ForEach(viewModel.statistics) { statistic in
-                    StatisticView(statistic: statistic)
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(alignment: .top) {
+                    ForEach(viewModel.statistics) { statistic in
+                        StatisticView(statistic: statistic)
+                            .id(statistic.name)
+                            .onAppear {
+                            }
+                    }
+                }
+                .padding(.horizontal)
+            }
+            .onChange(of: viewModel.activeView) {
+                withAnimation {
+                    proxy.scrollTo(
+                        viewModel.activeView == .profile
+                        ? viewModel.statistics.last?.name
+                        : viewModel.statistics.first?.name
+                        , anchor: .trailing
+                    )
                 }
             }
-            .padding(.horizontal)
-            .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
 }
