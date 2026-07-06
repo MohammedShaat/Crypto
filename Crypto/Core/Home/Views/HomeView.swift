@@ -39,7 +39,7 @@ struct HomeView: View {
                 case .loading:
                     ProgressView()
                     
-                case .success:
+                case .success, .refreshing:
                     switch viewModel.activeView {
                     case .coins:
                         allCoinsList
@@ -64,6 +64,7 @@ struct HomeView: View {
             .sheet(isPresented: $viewModel.showingEditProfile) {
                 EditPortfolioView()
             }
+            .refreshable(action: viewModel.refresh)
         }
         .environment(viewModel)
     }
@@ -85,7 +86,21 @@ extension HomeView {
                 Text("Hodlings")
             }
             
-            Text("Price")
+            HStack {
+                Text("Price")
+                
+                Image(systemName: "arrow.trianglehead.clockwise.rotate.90")
+                    .rotationEffect(.degrees(viewModel.refreshDegree))
+                    .animation(
+                        .linear(duration: 1.5),
+                        value: viewModel.refreshDegree)
+                    .onTapGesture {
+                        Task {
+                            await viewModel.refresh()
+                        }
+                    }
+                    .allowsHitTesting(viewModel.loadingStatus != .refreshing)
+            }
                 .containerRelativeFrame(.horizontal, alignment: .trailing) { width, _ in
                     width * 0.25
                 }
@@ -116,14 +131,28 @@ extension HomeView {
     }
     
     private var marketStatistics: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(alignment: .top) {
-                ForEach(viewModel.statistics) { statistic in
-                    StatisticView(statistic: statistic)
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(alignment: .top) {
+                    ForEach(viewModel.statistics) { statistic in
+                        StatisticView(statistic: statistic)
+                            .id(statistic.name)
+                            .onAppear {
+                            }
+                    }
+                }
+                .padding(.horizontal)
+            }
+            .onChange(of: viewModel.activeView) {
+                withAnimation {
+                    proxy.scrollTo(
+                        viewModel.activeView == .profile
+                        ? viewModel.statistics.last?.name
+                        : viewModel.statistics.first?.name
+                        , anchor: .trailing
+                    )
                 }
             }
-            .padding(.horizontal)
-            .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
 }

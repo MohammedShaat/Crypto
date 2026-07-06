@@ -31,7 +31,7 @@ struct EditPortfolioView: View {
                     case .loading:
                         ProgressView()
                         
-                    case .success:
+                    case .success, .refreshing:
                         coinsList
                         fields
                         

@@ -18,16 +18,14 @@ struct CoinImageService {
     
     func getImage(for key: String, from url: String) async -> Result<Data, Error> {
         guard let directory = fmService.createDirectory(for: directoryName, conformingTo: .caches) else {
-            print("Failed tot find or create cache directory")
+            print("Failed to find or create cache directory")
             return .failure(FileError.directoryNotFound)
         }
         
         if let data = fmService.getData(for: key, from: directory) {
-            print("Loaded image from disk")
             return .success(data)
         }
         
-        print("Fetching image from network")
         let result = await NetworkService.fetchData(from: url)
         switch result {
         case .success(let data):

@@ -25,12 +25,14 @@ extension HomeView {
         }
         
         private let marketService = MarketService.shared
-        private(set) var statistics = [Statistic]()
+        private var marketStatistics: MarketStatistics?
+        var statistics: [Statistic] {
+            getStatistics()
+        }
         
         private let profileCoinService: ProfileCoinService
         private var _profileCoins = [LocalCoin]()
         var profileCoins: [Coin] {
-            print("Filtering profile coins")
             return _profileCoins.compactMap { localCoin in
                 _coins.first {
                     $0.id == localCoin.id
@@ -40,6 +42,7 @@ extension HomeView {
         
         private(set) var activeView: ActiveView = .coins
         private(set) var loadingStatus: LoadingStatus = .idle
+        private(set) var refreshDegree = 0.0
         
         var showingEditProfile = false
         var tappedCoin: Coin?
@@ -63,8 +66,11 @@ extension HomeView {
             loadProfileCoins()
         }
         
-        private func loadCoins() async  {
-            loadingStatus = .loading
+        private func loadCoins(status: LoadingStatus = .loading) async  {
+            loadingStatus = status
+            if status == .refreshing {
+                refreshDegree += 360
+            }
             
             let result = await CoinService.fetchCoins()
             switch result {
@@ -88,22 +94,33 @@ extension HomeView {
             let result = await marketService.fetchMarketStatistics()
             switch result {
             case .success(let networkMarketResult):
-                getStatistics(for: networkMarketResult.data)
+                marketStatistics = networkMarketResult.data
                 
             case .failure(let error):
                 print("Failed to fetch market statistics: \(error)")
             }
         }
         
-        private func getStatistics(for marketStatistics: MarketStatistics) {
+        private func getStatistics() -> [Statistic] {
+            guard let marketStatistics else { return [] }
+            
+            var newStatistics = [Statistic]()
             let marketCap = Statistic(name: "Market Cap", value: marketStatistics.totalMarketCap["usd"] ?? 0, percentage: marketStatistics.marketCapChangePercentage24hUsd)
             
             let volume = Statistic(name: "24h Volume", value: marketStatistics.totalVolume["usd"] ?? 0, percentage: marketStatistics.marketCapPercentage["usd"])
             
             let btcDominance = Statistic(name: "BTC Dominance", value: marketStatistics.marketCapPercentage["btc"] ?? 0, percentage: marketStatistics.marketCapPercentage["btc"])
             
-            let profile = Statistic(name: "Profile Value", value: 0)
-            statistics.append(contentsOf: [marketCap, volume, btcDominance, profile])
+            let newProfileValue = profileCoins.map { $0.totalCurrentHodldings }.reduce(0, +)
+            let oldProfileValue = profileCoins.map {
+                // Get the previous value
+                $0.totalCurrentHodldings / (100 + ($0.priceChangePercentage24h ?? 0)) * 100
+            }.reduce(0, +)
+            let profilePercentage = (newProfileValue - oldProfileValue) / oldProfileValue * 100
+            let profile = Statistic(name: "Profile Value", value: newProfileValue, percentage: profilePercentage)
+            
+            newStatistics.append(contentsOf: [marketCap, volume, btcDominance, profile])
+            return newStatistics
         }
         
         private func loadProfileCoins() {
@@ -114,6 +131,11 @@ extension HomeView {
             case .failure:
                 break
             }
+        }
+        
+        func refresh() async {
+            await loadCoins(status: .refreshing)
+            await loadMarketStatistics()
         }
         
         func switchView() {
