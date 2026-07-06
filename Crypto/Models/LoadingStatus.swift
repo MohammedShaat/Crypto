@@ -8,5 +8,5 @@
 import Foundation
 
 enum LoadingStatus: Equatable {
-    case idle, loading, success, failure(String)
+    case idle, loading, success, failure(String), refreshing
 }

@@ -31,6 +31,10 @@ struct HomeView: View {
                 
                 Spacer()
                 
+                if viewModel.isRefreshing {
+                    ProgressView()
+                }
+                
                 switch viewModel.loadingStatus {
                 case .idle:
                     Text("Welcome")
@@ -39,7 +43,7 @@ struct HomeView: View {
                 case .loading:
                     ProgressView()
                     
-                case .success:
+                case .success, .refreshing:
                     switch viewModel.activeView {
                     case .coins:
                         allCoinsList
@@ -64,6 +68,7 @@ struct HomeView: View {
             .sheet(isPresented: $viewModel.showingEditProfile) {
                 EditPortfolioView()
             }
+            .refreshable(action: viewModel.refresh)
         }
         .environment(viewModel)
     }

@@ -30,7 +30,7 @@ struct CoinImageView: View {
 
     func getImage(for status: LoadingStatus) -> Image {
         switch viewModel.loadingStatus {
-        case .idle:
+        case .idle, .refreshing:
             return Image(systemName: "photo.slash")
         case .loading:
             return Image(systemName: "photo.circle.fill")

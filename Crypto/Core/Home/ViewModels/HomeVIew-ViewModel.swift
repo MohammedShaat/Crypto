@@ -40,6 +40,7 @@ extension HomeView {
         
         private(set) var activeView: ActiveView = .coins
         private(set) var loadingStatus: LoadingStatus = .idle
+        private(set) var isRefreshing = false
         
         var showingEditProfile = false
         var tappedCoin: Coin?
@@ -63,8 +64,8 @@ extension HomeView {
             loadProfileCoins()
         }
         
-        private func loadCoins() async  {
-            loadingStatus = .loading
+        private func loadCoins(status: LoadingStatus = .loading) async  {
+            loadingStatus = status
             
             let result = await CoinService.fetchCoins()
             switch result {
@@ -114,6 +115,11 @@ extension HomeView {
             case .failure:
                 break
             }
+        }
+        
+        func refresh() async {
+            await loadCoins(status: .refreshing)
+            await loadMarketStatistics()
         }
         
         func switchView() {
