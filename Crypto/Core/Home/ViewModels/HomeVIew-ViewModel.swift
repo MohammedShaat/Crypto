@@ -111,8 +111,13 @@ extension HomeView {
             
             let btcDominance = Statistic(name: "BTC Dominance", value: marketStatistics.marketCapPercentage["btc"] ?? 0, percentage: marketStatistics.marketCapPercentage["btc"])
             
-            let profileValue = profileCoins.map { $0.totalCurrentHodldings }.reduce(0, +)
-            let profile = Statistic(name: "Profile Value", value: profileValue)
+            let newProfileValue = profileCoins.map { $0.totalCurrentHodldings }.reduce(0, +)
+            let oldProfileValue = profileCoins.map {
+                // Get the previous value
+                $0.totalCurrentHodldings / (100 + ($0.priceChangePercentage24h ?? 0)) * 100
+            }.reduce(0, +)
+            let profilePercentage = (newProfileValue - oldProfileValue) / oldProfileValue * 100
+            let profile = Statistic(name: "Profile Value", value: newProfileValue, percentage: profilePercentage)
             
             newStatistics.append(contentsOf: [marketCap, volume, btcDominance, profile])
             return newStatistics
