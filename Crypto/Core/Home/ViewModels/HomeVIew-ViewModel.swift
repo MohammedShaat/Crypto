@@ -40,7 +40,7 @@ extension HomeView {
         
         private(set) var activeView: ActiveView = .coins
         private(set) var loadingStatus: LoadingStatus = .idle
-        private(set) var isRefreshing = false
+        private(set) var refreshDegree = 0.0
         
         var showingEditProfile = false
         var tappedCoin: Coin?
@@ -66,6 +66,9 @@ extension HomeView {
         
         private func loadCoins(status: LoadingStatus = .loading) async  {
             loadingStatus = status
+            if status == .refreshing {
+                refreshDegree += 360
+            }
             
             let result = await CoinService.fetchCoins()
             switch result {

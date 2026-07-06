@@ -31,10 +31,6 @@ struct HomeView: View {
                 
                 Spacer()
                 
-                if viewModel.isRefreshing {
-                    ProgressView()
-                }
-                
                 switch viewModel.loadingStatus {
                 case .idle:
                     Text("Welcome")
@@ -90,7 +86,21 @@ extension HomeView {
                 Text("Hodlings")
             }
             
-            Text("Price")
+            HStack {
+                Text("Price")
+                
+                Image(systemName: "arrow.trianglehead.clockwise.rotate.90")
+                    .rotationEffect(.degrees(viewModel.refreshDegree))
+                    .animation(
+                        .linear(duration: 1.5),
+                        value: viewModel.refreshDegree)
+                    .onTapGesture {
+                        Task {
+                            await viewModel.refresh()
+                        }
+                    }
+                    .allowsHitTesting(viewModel.loadingStatus != .refreshing)
+            }
                 .containerRelativeFrame(.horizontal, alignment: .trailing) { width, _ in
                     width * 0.25
                 }
