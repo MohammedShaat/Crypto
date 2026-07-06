@@ -25,12 +25,14 @@ extension HomeView {
         }
         
         private let marketService = MarketService.shared
-        private(set) var statistics = [Statistic]()
+        private var marketStatistics: MarketStatistics?
+        var statistics: [Statistic] {
+            getStatistics()
+        }
         
         private let profileCoinService: ProfileCoinService
         private var _profileCoins = [LocalCoin]()
         var profileCoins: [Coin] {
-            print("Filtering profile coins")
             return _profileCoins.compactMap { localCoin in
                 _coins.first {
                     $0.id == localCoin.id
@@ -92,22 +94,28 @@ extension HomeView {
             let result = await marketService.fetchMarketStatistics()
             switch result {
             case .success(let networkMarketResult):
-                getStatistics(for: networkMarketResult.data)
+                marketStatistics = networkMarketResult.data
                 
             case .failure(let error):
                 print("Failed to fetch market statistics: \(error)")
             }
         }
         
-        private func getStatistics(for marketStatistics: MarketStatistics) {
+        private func getStatistics() -> [Statistic] {
+            guard let marketStatistics else { return [] }
+            
+            var newStatistics = [Statistic]()
             let marketCap = Statistic(name: "Market Cap", value: marketStatistics.totalMarketCap["usd"] ?? 0, percentage: marketStatistics.marketCapChangePercentage24hUsd)
             
             let volume = Statistic(name: "24h Volume", value: marketStatistics.totalVolume["usd"] ?? 0, percentage: marketStatistics.marketCapPercentage["usd"])
             
             let btcDominance = Statistic(name: "BTC Dominance", value: marketStatistics.marketCapPercentage["btc"] ?? 0, percentage: marketStatistics.marketCapPercentage["btc"])
             
-            let profile = Statistic(name: "Profile Value", value: 0)
-            statistics.append(contentsOf: [marketCap, volume, btcDominance, profile])
+            let profileValue = profileCoins.map { $0.totalCurrentHodldings }.reduce(0, +)
+            let profile = Statistic(name: "Profile Value", value: profileValue)
+            
+            newStatistics.append(contentsOf: [marketCap, volume, btcDominance, profile])
+            return newStatistics
         }
         
         private func loadProfileCoins() {
