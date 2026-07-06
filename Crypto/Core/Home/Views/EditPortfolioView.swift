@@ -5,6 +5,7 @@
 //  Created by Mohammed on 7/5/26.
 //
 
+import SwiftData
 import SwiftUI
 
 struct EditPortfolioView: View {
@@ -75,7 +76,7 @@ extension EditPortfolioView {
     private var coinsList: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 30) {
-                ForEach(viewModel.coins) { coin in
+                ForEach(viewModel.searchText.isEmpty ? viewModel.profileCoins : viewModel.coins) { coin in
                     CoinItemView(coin: coin)
                     .padding(5)
                     .overlay(
@@ -142,11 +143,15 @@ extension EditPortfolioView {
 }
 
 #Preview {
-    VStack {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: LocalCoin.self, configurations: config)
+    let context = container.mainContext
+    
+    return VStack {
         
     }
     .sheet(isPresented: .constant(true)) {
         EditPortfolioView()
     }
-    .environment(HomeView.ViewModel())
+    .environment(HomeView.ViewModel(context: context))
 }
