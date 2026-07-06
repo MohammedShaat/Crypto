@@ -11,34 +11,36 @@ import SwiftData
 extension HomeView {
     @Observable
     class ViewModel {
-        var searchText = ""
         private let CoinService = CoinDataService.shared
-        private var _coins = [Coin]()
-        var coins: [Coin] {
-            if searchText.isEmpty {
-                return _coins
-            } else {
-                return _coins.filter { coin in
-                    coin.name.localizedStandardContains(searchText) || coin.symbol.localizedStandardContains(searchText)
-                }
+        private var allCoins = [Coin]() {
+            didSet {
+                updateCoins()
+                updateProfileCoins()
+            }
+        }
+        private(set) var coins = [Coin]()
+        var searchText = "" {
+            didSet {
+                updateCoins()
             }
         }
         
         private let marketService = MarketService.shared
-        private var marketStatistics: MarketStatistics?
-        var statistics: [Statistic] {
-            getStatistics()
-        }
-        
-        private let profileCoinService: ProfileCoinService
-        private var _profileCoins = [LocalCoin]()
-        var profileCoins: [Coin] {
-            return _profileCoins.compactMap { localCoin in
-                _coins.first {
-                    $0.id == localCoin.id
-                }?.updateHoldings(amount: localCoin.currentHoldings)
+        private var marketStatistics: MarketStatistics? {
+            didSet {
+                updateStatistics()
             }
         }
+        var statistics = [Statistic]()
+        
+        private let profileCoinService: ProfileCoinService
+        private var profileLocalCoins = [LocalCoin]() {
+            didSet {
+                updateProfileCoins()
+                updateStatistics()
+            }
+        }
+        var profileCoins = [Coin]()
         
         private(set) var activeView: ActiveView = .coins
         private(set) var loadingStatus: LoadingStatus = .idle
@@ -56,14 +58,32 @@ extension HomeView {
         
         init(context: ModelContext) {
             profileCoinService = ProfileCoinService(context: context)
-            
             Task {
-                await loadCoins()
+                async let loadCoinsOp = loadCoins()
+                async let loadMarketStatisticsOp = loadMarketStatistics()
+                _ = await (loadCoinsOp, loadMarketStatisticsOp)
+                loadProfileCoins()
             }
-            Task {
-                await loadMarketStatistics()
+        }
+        
+        private func updateCoins() {
+            print("*{coins}")
+            if searchText.isEmpty {
+                coins = allCoins
+            } else {
+                coins = allCoins.filter { coin in
+                    coin.name.localizedStandardContains(searchText) || coin.symbol.localizedStandardContains(searchText)
+                }
             }
-            loadProfileCoins()
+        }
+        
+        private func updateProfileCoins() {
+            print("*{profileCoins}")
+            profileCoins = profileLocalCoins.compactMap { localCoin in
+                allCoins.first {
+                    $0.id == localCoin.id
+                }?.updateHoldings(amount: localCoin.currentHoldings)
+            }
         }
         
         private func loadCoins(status: LoadingStatus = .loading) async  {
@@ -75,7 +95,7 @@ extension HomeView {
             let result = await CoinService.fetchCoins()
             switch result {
             case .success(let networkCoins):
-                _coins = networkCoins
+                allCoins = networkCoins
                 loadingStatus = .success
                 
             case .failure(let error):
@@ -101,8 +121,9 @@ extension HomeView {
             }
         }
         
-        private func getStatistics() -> [Statistic] {
-            guard let marketStatistics else { return [] }
+        private func updateStatistics() {
+            print("*{statistics}")
+            guard let marketStatistics else { return  }
             
             var newStatistics = [Statistic]()
             let marketCap = Statistic(name: "Market Cap", value: marketStatistics.totalMarketCap["usd"] ?? 0, percentage: marketStatistics.marketCapChangePercentage24hUsd)
@@ -120,14 +141,14 @@ extension HomeView {
             let profile = Statistic(name: "Profile Value", value: newProfileValue, percentage: profilePercentage)
             
             newStatistics.append(contentsOf: [marketCap, volume, btcDominance, profile])
-            return newStatistics
+            statistics = newStatistics
         }
         
         private func loadProfileCoins() {
             let result = profileCoinService.fetchCoins()
             switch result {
             case .success(let localCoins):
-                _profileCoins = localCoins
+                profileLocalCoins = localCoins
             case .failure:
                 break
             }
@@ -163,7 +184,7 @@ extension HomeView {
             guard let tappedCoin, let newHoldings else { return }
             
             // The coin is already added to profile
-            if let localCoin = _profileCoins.first(where: { $0.id == tappedCoin.id }) {
+            if let localCoin = profileLocalCoins.first(where: { $0.id == tappedCoin.id }) {
                 if newHoldings == 0 {
                     profileCoinService.deleteCoin(localCoin)
                 } else {
