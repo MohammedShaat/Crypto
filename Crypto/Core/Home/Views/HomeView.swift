@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct HomeView: View {
-    @State private var viewModel = ViewModel()
+    @State private var viewModel: ViewModel
     
     var body: some View {
         NavigationStack {
@@ -66,6 +67,11 @@ struct HomeView: View {
         }
         .environment(viewModel)
     }
+    
+    init(context: ModelContext) {
+        let viewModel = ViewModel(context: context)
+        _viewModel = State(initialValue: viewModel)
+    }
 }
 
 extension HomeView {
@@ -101,12 +107,10 @@ extension HomeView {
     
     private var profileCoinsList: some View {
         List {
-            CoinRowView(coin: viewModel.coins[0], showHoldings: true)
-                .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-            
-            CoinRowView(coin: viewModel.coins[5], showHoldings: true)
-                .transition(.move(edge: .trailing))
-                .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+            ForEach(viewModel.profileCoins) { coin in
+                CoinRowView(coin: coin, showHoldings: true)
+                    .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+            }
         }
         .listStyle(.plain)
     }
@@ -125,5 +129,9 @@ extension HomeView {
 }
 
 #Preview {
-    HomeView()
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: LocalCoin.self, configurations: config)
+    let context = container.mainContext
+    
+    HomeView(context: context)
 }
