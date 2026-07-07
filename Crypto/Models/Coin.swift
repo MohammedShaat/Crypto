@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Coin: Identifiable, Codable {
+struct Coin: Codable, Hashable, Identifiable {
     let id: String
     let symbol: String
     let name: String
@@ -79,7 +79,7 @@ struct Coin: Identifiable, Codable {
     }
     
     
-    struct SparkLineIn7d: Codable {
+    struct SparkLineIn7d: Codable, Hashable {
         let price: [Double]
     }
     
