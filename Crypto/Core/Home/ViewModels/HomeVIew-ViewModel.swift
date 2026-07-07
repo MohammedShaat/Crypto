@@ -22,6 +22,7 @@ extension HomeView {
         var searchText = "" {
             didSet {
                 updateCoins()
+                updateProfileCoins()
             }
         }
         
@@ -55,6 +56,9 @@ extension HomeView {
         var showingSaveButton = false
         private(set) var showingSaveIcon = false
         
+        private(set) var sortOrder: SortingOrder = .holdings
+        private(set) var isSortReversed = false
+        
         
         init(context: ModelContext) {
             profileCoinService = ProfileCoinService(context: context)
@@ -65,6 +69,7 @@ extension HomeView {
                 loadProfileCoins()
             }
         }
+        
         
         private func updateCoins() {
             print("*{coins}")
@@ -79,10 +84,52 @@ extension HomeView {
         
         private func updateProfileCoins() {
             print("*{profileCoins}")
-            profileCoins = profileLocalCoins.compactMap { localCoin in
-                allCoins.first {
-                    $0.id == localCoin.id
-                }?.updateHoldings(amount: localCoin.currentHoldings)
+            profileCoins = allCoins.compactMap { coin in
+                if let localCoin =  profileLocalCoins.first(where: { $0.id == coin.id }) {
+                    return coin.updateHoldings(amount: localCoin.currentHoldings)
+                } else {
+                    return nil
+                }
+            }
+            sortCoinsByHoldingsIfPossible(&profileCoins)
+        }
+        
+        
+        func sort(by order: SortingOrder) {
+            if order == self.sortOrder {
+                isSortReversed.toggle()
+            }
+            self.sortOrder = order
+            sortCoins(&allCoins)
+        }
+        
+        private func sortCoins(_ coins: inout [Coin], forceHoldings: Bool = false) {
+            switch sortOrder {
+            case .price:
+                if isSortReversed {
+                    coins.sort { $0.currentPrice > $1.currentPrice }
+                } else {
+                    coins.sort { $0.currentPrice < $1.currentPrice }
+                }
+            case .rank, .holdings:
+                if isSortReversed {
+                    coins.sort { $0.rank > $1.rank }
+                } else {
+                    coins.sort { $0.rank < $1.rank }
+                }
+            }
+        }
+        
+        private func sortCoinsByHoldingsIfPossible(_ coins: inout [Coin]) {
+            switch sortOrder {
+            case .holdings:
+                if isSortReversed {
+                    coins.sort { $0.totalCurrentHodldings > $1.totalCurrentHodldings }
+                } else {
+                    coins.sort { $0.totalCurrentHodldings < $1.totalCurrentHodldings }
+                }
+            default:
+                break
             }
         }
         
@@ -95,6 +142,8 @@ extension HomeView {
             let result = await CoinService.fetchCoins()
             switch result {
             case .success(let networkCoins):
+                var networkCoins = networkCoins
+                sortCoins(&networkCoins)
                 allCoins = networkCoins
                 loadingStatus = .success
                 
@@ -210,6 +259,10 @@ extension HomeView {
         
         enum ActiveView {
             case coins, profile
+        }
+        
+        enum SortingOrder: Equatable {
+            case holdings, price, rank
         }
     }
 }
