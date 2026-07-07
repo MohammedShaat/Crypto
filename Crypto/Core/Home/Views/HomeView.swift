@@ -78,32 +78,33 @@ struct HomeView: View {
 extension HomeView {
     private var categoriesRow: some View {
         HStack {
-            Text("Coin")
+            CategoriesItemView(title: "Coin", showSortArrow: viewModel.sortOrder == .rank, isReversed: viewModel.isSortReversed)
+                .onTapGesture { viewModel.sort(by: .rank) }
             
             Spacer()
-
+            
             if viewModel.activeView == .profile {
-                Text("Hodlings")
+                CategoriesItemView(title: "Holdings", showSortArrow: viewModel.sortOrder == .holdings, isReversed: viewModel.isSortReversed)
+                    .onTapGesture { viewModel.sort(by: .holdings) }
             }
             
-            HStack {
-                Text("Price")
-                
-                Image(systemName: "arrow.trianglehead.clockwise.rotate.90")
-                    .rotationEffect(.degrees(viewModel.refreshDegree))
-                    .animation(
-                        .linear(duration: 1.5),
-                        value: viewModel.refreshDegree)
-                    .onTapGesture {
-                        Task {
-                            await viewModel.refresh()
-                        }
-                    }
-                    .allowsHitTesting(viewModel.loadingStatus != .refreshing)
-            }
+            CategoriesItemView(title: "Price", showSortArrow: viewModel.sortOrder == .price, isReversed: viewModel.isSortReversed)
                 .containerRelativeFrame(.horizontal, alignment: .trailing) { width, _ in
                     width * 0.25
                 }
+                .onTapGesture { viewModel.sort(by: .price) }
+            
+            Image(systemName: "arrow.trianglehead.clockwise.rotate.90")
+                .rotationEffect(.degrees(viewModel.refreshDegree))
+                .animation(
+                    .linear(duration: 1.5),
+                    value: viewModel.refreshDegree)
+                .onTapGesture {
+                    Task {
+                        await viewModel.refresh()
+                    }
+                }
+                .allowsHitTesting(viewModel.loadingStatus != .refreshing)
         }
         .padding(.horizontal)
         .font(.caption)
