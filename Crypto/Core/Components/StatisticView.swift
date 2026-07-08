@@ -15,11 +15,10 @@ struct StatisticView: View {
             Text(statistic.name)
                 .foregroundStyle(.theme.secondaryText)
                 .font(.subheadline)
-                .padding(.bottom, 5)
             
-            Text(statistic.value.asAbreviatedCurrency)
+            Text(statistic.value)
                 .foregroundStyle(.theme.accent)
-                .font(.title3)
+                .font(.headline)
             
             if let percentage = statistic.percentage {
                 Label(

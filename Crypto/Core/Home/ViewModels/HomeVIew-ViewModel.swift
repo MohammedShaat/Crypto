@@ -175,11 +175,11 @@ extension HomeView {
             guard let marketStatistics else { return  }
             
             var newStatistics = [Statistic]()
-            let marketCap = Statistic(name: "Market Cap", value: marketStatistics.totalMarketCap["usd"] ?? 0, percentage: marketStatistics.marketCapChangePercentage24hUsd)
+            let marketCap = Statistic(name: "Market Cap", value: (marketStatistics.totalMarketCap["usd"] ?? 0).asAbreviatedCurrency, percentage: marketStatistics.marketCapChangePercentage24hUsd)
             
-            let volume = Statistic(name: "24h Volume", value: marketStatistics.totalVolume["usd"] ?? 0, percentage: marketStatistics.marketCapPercentage["usd"])
+            let volume = Statistic(name: "24h Volume", value: (marketStatistics.totalVolume["usd"] ?? 0).asAbreviatedCurrency, percentage: marketStatistics.marketCapPercentage["usd"])
             
-            let btcDominance = Statistic(name: "BTC Dominance", value: marketStatistics.marketCapPercentage["btc"] ?? 0, percentage: marketStatistics.marketCapPercentage["btc"])
+            let btcDominance = Statistic(name: "BTC Dominance", value: (marketStatistics.marketCapPercentage["btc"] ?? 0).asAbreviatedCurrency, percentage: marketStatistics.marketCapPercentage["btc"])
             
             let newProfileValue = profileCoins.map { $0.totalCurrentHodldings }.reduce(0, +)
             let oldProfileValue = profileCoins.map {
@@ -187,7 +187,7 @@ extension HomeView {
                 $0.totalCurrentHodldings / (100 + ($0.priceChangePercentage24h ?? 0)) * 100
             }.reduce(0, +)
             let profilePercentage = (newProfileValue - oldProfileValue) / oldProfileValue * 100
-            let profile = Statistic(name: "Profile Value", value: newProfileValue, percentage: profilePercentage)
+            let profile = Statistic(name: "Profile Value", value: newProfileValue.asAbreviatedCurrency, percentage: profilePercentage)
             
             newStatistics.append(contentsOf: [marketCap, volume, btcDominance, profile])
             statistics = newStatistics
