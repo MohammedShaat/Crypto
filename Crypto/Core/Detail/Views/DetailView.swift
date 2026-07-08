@@ -44,8 +44,15 @@ struct DetailView: View {
 extension DetailView {
     private var detailsIfno: some View {
         Group {
-            Spacer()
-                .frame(height: 150)
+//            Spacer()
+//                .frame(height: 150)
+            if let sparkline = viewModel.coin.sparklineIn7d?.price,
+               let change = viewModel.coin.priceChangePercentage24h {
+                CoinPriceChartView(
+                    data: sparkline,
+                    color: change >= 0 ? .theme.green : .theme.red
+                )
+            }
             
             GridView(title: "Overview", items: viewModel.overviewStatistics)
             
