@@ -12,16 +12,51 @@ struct DetailView: View {
     @State private var viewModel: ViewModel
     
     var body: some View {
-        Text(viewModel.coin.name)
+        ScrollView {
+            VStack {
+                switch viewModel.loadingStatus {
+                case .idle:
+                    Text("Coin Detail")
+                        .font(.title)
+                case .loading:
+                    ProgressView()
+                case .success, .refreshing:
+                    detailsIfno
+                case .failure(let error):
+                    VStack {
+                        Image(systemName: "server.rack")
+                        Text(error)
+                    }
+                    .font(.title)
+                }
+            }
+        }
+        .navigationTitle(viewModel.coin.name)
+        .navigationBarTitleDisplayMode(.large)
     }
     
     init(coin: Coin) {
         let viewModel = ViewModel(coin: coin)
         _viewModel = State(initialValue: viewModel)
-        print("DetailVIew init")
+    }
+}
+
+extension DetailView {
+    private var detailsIfno: some View {
+        Group {
+            Spacer()
+                .frame(height: 150)
+            
+            GridView(title: "Overview", items: viewModel.overviewStatistics)
+            
+            GridView(title: "Additional Details", items: viewModel.additionalStatistics)
+        }
+        .padding()
     }
 }
 
 #Preview {
-    DetailView(coin: Preview.coins[0])
+    NavigationStack {
+        DetailView(coin: Preview.coins[0])
+    }
 }

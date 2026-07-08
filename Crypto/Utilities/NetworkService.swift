@@ -29,8 +29,7 @@ struct NetworkService {
             return .success(data)
             
         } catch {
-            print("Failed to load data: \(error.localizedDescription)")
-            print(error)
+            print("Failed to load data: \(error)")
             return .failure(.unknown(error))
         }
     }
@@ -43,6 +42,7 @@ struct NetworkService {
                 let decodedData = try JSONDecoder().decode(T.self, from: data)
                 return .success(decodedData)
             } catch {
+                print("Failed to decode data: \(error)")
                 return .failure(.unknown(error))
             }
             
@@ -52,8 +52,19 @@ struct NetworkService {
     }
 }
 
-enum NetworkError: Error {
+enum NetworkError: LocalizedError {
     case invalidURL
     case badResponse
     case unknown(Error)
+    
+    var localizedDescription: String {
+        switch self {
+        case .invalidURL:
+            return "Invalid URL"
+        case .badResponse:
+            return "Bad response"
+        case .unknown(let error):
+            return error.localizedDescription
+        }
+    }
 }
