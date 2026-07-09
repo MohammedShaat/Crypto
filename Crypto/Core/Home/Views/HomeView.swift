@@ -65,6 +65,9 @@ struct HomeView: View {
                 EditPortfolioView()
             }
             .refreshable(action: viewModel.refresh)
+            .navigationDestination(for: Coin.self) { coin in
+                DetailView(coin: coin)
+            }
         }
         .environment(viewModel)
     }
@@ -114,8 +117,10 @@ extension HomeView {
     private var allCoinsList: some View {
         List {
             ForEach(viewModel.coins) { coin in
-                CoinRowView(coin: coin, showHoldings: false)
-                    .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                NavigationLink(value: coin) {
+                    CoinRowView(coin: coin, showHoldings: false)
+                }
+                .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
             }
         }
         .listStyle(.plain)
@@ -124,8 +129,10 @@ extension HomeView {
     private var profileCoinsList: some View {
         List {
             ForEach(viewModel.profileCoins) { coin in
-                CoinRowView(coin: coin, showHoldings: true)
-                    .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                NavigationLink(value: coin) {
+                    CoinRowView(coin: coin, showHoldings: true)
+                }
+                .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
             }
         }
         .listStyle(.plain)
@@ -137,9 +144,8 @@ extension HomeView {
                 HStack(alignment: .top) {
                     ForEach(viewModel.statistics) { statistic in
                         StatisticView(statistic: statistic)
+                            .padding(.horizontal, 10)
                             .id(statistic.name)
-                            .onAppear {
-                            }
                     }
                 }
                 .padding(.horizontal)
@@ -164,4 +170,5 @@ extension HomeView {
     let context = container.mainContext
     
     HomeView(context: context)
+        .modelContainer(container)
 }
