@@ -59,6 +59,7 @@ extension HomeView {
         private(set) var sortOrder: SortingOrder = .holdings
         private(set) var isSortReversed = false
         
+        var showingSettingsView = false
         
         init(context: ModelContext) {
             profileCoinService = ProfileCoinService(context: context)
@@ -215,6 +216,8 @@ extension HomeView {
         func topLeadingButtonTapped() {
             if activeView == .profile {
                 showingEditProfile.toggle()
+            } else {
+                showingSettingsView.toggle()
             }
         }
         

@@ -64,6 +64,9 @@ struct HomeView: View {
             .sheet(isPresented: $viewModel.showingEditProfile) {
                 EditPortfolioView()
             }
+            .sheet(isPresented: $viewModel.showingSettingsView) {
+                SettingsView()
+            }
             .refreshable(action: viewModel.refresh)
             .navigationDestination(for: Coin.self) { coin in
                 DetailView(coin: coin)
