@@ -19,6 +19,7 @@ extension DetailView {
         private(set) var additionalStatistics = [Statistic]()
         
         private let notAvailable = "N/A"
+        private(set) var progress = 0.0
         
         init(coin: Coin) {
             self.coin = coin
@@ -26,10 +27,6 @@ extension DetailView {
             Task {
                 await loadCoinDetail()
             }
-
-//            coinDetail = CoinDetail(id: "Bitcoin", symbol: "BTC", name: "Bitcoin", webSlug: "", blockTimeInMinutes: 20, hashingAlgorithm: "SSH", categories: [], hasSupplyBreakdown: true, description: Description(en: ""), links: Links(homepage: [], twitterScreenName: "", facebookUsername: "", telegramChannelIdentifier: "", subredditUrl: ""), lastUpdated: "")
-//            loadingStatus = .success
-//            setupStatistics()
         }
         
         private func loadCoinDetail() async {
@@ -44,6 +41,10 @@ extension DetailView {
             case .failure(let error):
                 loadingStatus = .failure(error.localizedDescription)
             }
+        }
+        
+        func incrementProgress() {
+            progress = 1
         }
         
         private func setupStatistics() {

@@ -39,7 +39,9 @@ struct NetworkService {
         switch result {
         case .success(let data):
             do {
-                let decodedData = try JSONDecoder().decode(T.self, from: data)
+                let decoder = JSONDecoder()
+//                decoder.dateDecodingStrategy = .iso8601
+                let decodedData = try decoder.decode(T.self, from: data)
                 return .success(decodedData)
             } catch {
                 print("Failed to decode data: \(error)")

@@ -33,6 +33,12 @@ struct DetailView: View {
         }
         .navigationTitle(viewModel.coin.name)
         .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                CoinImageView(id: viewModel.coin.id, imageUrl: viewModel.coin.image)
+                    .frame(width: 30, height: 30)
+            }
+        }
     }
     
     init(coin: Coin) {
@@ -44,15 +50,13 @@ struct DetailView: View {
 extension DetailView {
     private var detailsIfno: some View {
         Group {
-//            Spacer()
-//                .frame(height: 150)
-            if let sparkline = viewModel.coin.sparklineIn7d?.price,
-               let change = viewModel.coin.priceChangePercentage24h {
-                CoinPriceChartView(
-                    data: sparkline,
-                    color: change >= 0 ? .theme.green : .theme.red
-                )
-            }
+            PriceChartView(coin: viewModel.coin, progress: viewModel.progress)
+                .frame(height: 200)
+                .onAppear {
+                    withAnimation(.easeOut(duration: 2)) {
+                        viewModel.incrementProgress()
+                    }
+                }
             
             GridView(title: "Overview", items: viewModel.overviewStatistics)
             
