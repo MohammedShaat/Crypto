@@ -29,7 +29,6 @@ struct StatisticView: View {
                 .foregroundStyle(percentage >= 0 ? .theme.green : .theme.red)
             }
         }
-        .padding(.horizontal, 10)
     }
 }
 

@@ -144,9 +144,8 @@ extension HomeView {
                 HStack(alignment: .top) {
                     ForEach(viewModel.statistics) { statistic in
                         StatisticView(statistic: statistic)
+                            .padding(.horizontal, 10)
                             .id(statistic.name)
-                            .onAppear {
-                            }
                     }
                 }
                 .padding(.horizontal)
@@ -171,4 +170,5 @@ extension HomeView {
     let context = container.mainContext
     
     HomeView(context: context)
+        .modelContainer(container)
 }

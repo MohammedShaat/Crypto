@@ -8,20 +8,14 @@
 import SwiftUI
 
 struct GridView: View {
-    let title: String
     let items: [Statistic]
     let columns: [GridItem]  = [
-        GridItem(.adaptive(minimum: .infinity, maximum: .infinity), ),
-        GridItem(.adaptive(minimum: .infinity, maximum: .infinity)),
+        GridItem(.adaptive(minimum: .infinity, maximum: .infinity), alignment: .leading),
+        GridItem(.adaptive(minimum: .infinity, maximum: .infinity), alignment: .leading),
     ]
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text(title)
-                .font(.title2.bold())
-                .foregroundStyle(.theme.accent)
-            Divider()
-            
             LazyVGrid(columns: columns, alignment: .leading, spacing: 30) {
                 ForEach(items) { statistic in
                     StatisticView(statistic: statistic)
@@ -33,9 +27,9 @@ struct GridView: View {
 
 #Preview {
     VStack(spacing: 50) {
-        GridView(title: "Current Price", items: Preview.statistics)
+        GridView(items: Preview.statistics)
         
-        GridView(title: "Market Capitalization", items: Preview.statistics)
+        GridView(items: Preview.statistics)
     }
     .padding()
 }
