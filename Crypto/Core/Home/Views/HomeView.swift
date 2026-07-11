@@ -13,63 +13,10 @@ struct HomeView: View {
     
     var body: some View {
         NavigationStack {
-            VStack {
-                HeaderView(showProfile: viewModel.activeView == .profile) {
-                    viewModel.topLeadingButtonTapped()
-                } trailingAction: {
-                    withAnimation {
-                        viewModel.switchView()
-                    }
-                }
-                
-                marketStatistics
-                
-                SearchBarView(text: $viewModel.searchText)
-                    .padding()
-                
-                categoriesRow
-                
-                Spacer()
-                
-                switch viewModel.loadingStatus {
-                case .idle:
-                    Text("Welcome")
-                        .font(.title)
-                    
-                case .loading:
-                    ProgressView()
-                    
-                case .success, .refreshing:
-                    switch viewModel.activeView {
-                    case .coins:
-                        allCoinsList
-                            .transition(.move(edge: .leading))
-                        
-                    case .profile:
-                        profileCoinsList
-                            .transition(.move(edge: .trailing))
-                    }
-                    
-                case .failure(let error):
-                    VStack {
-                        Image(systemName: "server.rack")
-                        Text(error)
-                    }
-                    .font(.title)
-                }
-                
-                Spacer()
-            }
-            .toolbar(.hidden)
-            .sheet(isPresented: $viewModel.showingEditProfile) {
-                EditPortfolioView()
-            }
-            .sheet(isPresented: $viewModel.showingSettingsView) {
-                SettingsView()
-            }
-            .refreshable(action: viewModel.refresh)
-            .navigationDestination(for: Coin.self) { coin in
-                DetailView(coin: coin)
+            if viewModel.firstLoadingDone {
+                mainView
+            } else {
+                SplashView()
             }
         }
         .environment(viewModel)
@@ -82,6 +29,67 @@ struct HomeView: View {
 }
 
 extension HomeView {
+    private var mainView: some View {
+        VStack {
+            HeaderView(showProfile: viewModel.activeView == .profile) {
+                viewModel.topLeadingButtonTapped()
+            } trailingAction: {
+                withAnimation {
+                    viewModel.switchView()
+                }
+            }
+            
+            marketStatistics
+            
+            SearchBarView(text: $viewModel.searchText)
+                .padding()
+            
+            categoriesRow
+            
+            Spacer()
+            
+            switch viewModel.loadingStatus {
+            case .idle:
+                Text("Welcome")
+                    .font(.title)
+                
+            case .loading:
+                ProgressView()
+                
+            case .success, .refreshing:
+                switch viewModel.activeView {
+                case .coins:
+                    allCoinsList
+                        .transition(.move(edge: .leading))
+                    
+                case .profile:
+                    profileCoinsList
+                        .transition(.move(edge: .trailing))
+                }
+                
+            case .failure(let error):
+                VStack {
+                    Image(systemName: "server.rack")
+                    Text(error)
+                }
+                .font(.title)
+            }
+            
+            Spacer()
+        }
+        .toolbar(.hidden)
+        .sheet(isPresented: $viewModel.showingEditProfile) {
+            EditPortfolioView()
+        }
+        .sheet(isPresented: $viewModel.showingSettingsView) {
+            SettingsView()
+        }
+        .refreshable(action: viewModel.refresh)
+        .navigationDestination(for: Coin.self) { coin in
+            DetailView(coin: coin)
+        }
+    }
+    
     private var categoriesRow: some View {
         HStack {
             CategoriesItemView(title: "Coin", showSortArrow: viewModel.sortOrder == .rank, isReversed: viewModel.isSortReversed)

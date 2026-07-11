@@ -45,6 +45,7 @@ extension HomeView {
         
         private(set) var activeView: ActiveView = .coins
         private(set) var loadingStatus: LoadingStatus = .idle
+        private(set) var firstLoadingDone = false
         private(set) var refreshDegree = 0.0
         
         var showingEditProfile = false
@@ -67,6 +68,7 @@ extension HomeView {
                 async let loadCoinsOp = loadCoins()
                 async let loadMarketStatisticsOp = loadMarketStatistics()
                 _ = await (loadCoinsOp, loadMarketStatisticsOp)
+                firstLoadingDone = true
                 loadProfileCoins()
             }
         }
