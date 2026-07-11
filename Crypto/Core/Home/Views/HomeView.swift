@@ -58,7 +58,7 @@ extension HomeView {
             case .loading:
                 ProgressView()
                 
-            case .success, .refreshing:
+            case .success, .refreshing, .refreshFailed:
                 switch viewModel.activeView {
                 case .coins:
                     allCoinsList
@@ -69,7 +69,7 @@ extension HomeView {
                         .transition(.move(edge: .trailing))
                 }
                 
-            case .failure(let error):
+            case .loadingFailed(let error):
                 VStack {
                     Image(systemName: "server.rack")
                     Text(error)

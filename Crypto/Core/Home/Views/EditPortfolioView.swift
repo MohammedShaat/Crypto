@@ -31,11 +31,11 @@ struct EditPortfolioView: View {
                     case .loading:
                         ProgressView()
                         
-                    case .success, .refreshing:
+                    case .success, .refreshing, .refreshFailed:
                         coinsList
                         fields
                         
-                    case .failure(let error):
+                    case .loadingFailed(let error):
                         VStack {
                             Image(systemName: "server.rack")
                             Text(error)

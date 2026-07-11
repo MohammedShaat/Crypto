@@ -153,11 +153,14 @@ extension HomeView {
             case .failure(let error):
                 switch error {
                 case .invalidURL:
-                    loadingStatus = .failure("Invalid URL")
+                    loadingStatus = status == .refreshing
+                    ? .refreshFailed("Invalid URL") : .loadingFailed("Invalid URL")
                 case .badResponse:
-                    loadingStatus = .failure("Bad Response")
+                    loadingStatus = status == .refreshing
+                    ? .refreshFailed("Bad Response") : .loadingFailed("Bad Response")
                 case .unknown:
-                    loadingStatus = .failure("Unexpected error occured")
+                    loadingStatus = status == .refreshing
+                    ? .refreshFailed("Unexpected error occured") : .loadingFailed("Unexpected error occured")
                 }
             }
         }

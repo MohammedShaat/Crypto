@@ -34,7 +34,7 @@ extension CoinImageView {
                     loadingStatus = .success
                     
                 case .failure:
-                    loadingStatus = .failure("Failed to load image")
+                    loadingStatus = .loadingFailed("Failed to load image")
                 }
             }
         }

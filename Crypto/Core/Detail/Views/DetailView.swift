@@ -20,9 +20,9 @@ struct DetailView: View {
                         .font(.title)
                 case .loading:
                     ProgressView()
-                case .success, .refreshing:
+                case .success, .refreshing, .refreshFailed:
                     detailsIfno
-                case .failure(let error):
+                case .loadingFailed(let error):
                     VStack {
                         Image(systemName: "server.rack")
                         Text(error)

@@ -48,7 +48,7 @@ extension DetailView {
                 setupDetails()
                 loadingStatus = .success
             case .failure(let error):
-                loadingStatus = .failure(error.localizedDescription)
+                loadingStatus = .loadingFailed(error.localizedDescription)
             }
         }
         
