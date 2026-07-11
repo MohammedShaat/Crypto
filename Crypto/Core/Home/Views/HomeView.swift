@@ -11,6 +11,8 @@ import SwiftData
 struct HomeView: View {
     @State private var viewModel: ViewModel
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    
     var body: some View {
         NavigationStack {
             if viewModel.firstLoadingDone {
@@ -150,28 +152,42 @@ extension HomeView {
     }
     
     private var marketStatistics: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .top) {
-                    ForEach(viewModel.statistics) { statistic in
-                        StatisticView(statistic: statistic)
-                            .padding(.horizontal, 10)
-                            .id(statistic.name)
+        Group {
+            if horizontalSizeClass == .compact {
+                ScrollViewReader { proxy in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        statisticsRow
+                    }
+                    .onChange(of: viewModel.activeView) {
+                        withAnimation {
+                            proxy.scrollTo(
+                                viewModel.activeView == .profile
+                                ? viewModel.statistics.last?.name
+                                : viewModel.statistics.first?.name
+                                , anchor: .trailing
+                            )
+                        }
                     }
                 }
-                .padding(.horizontal)
+            } else {
+                statisticsRow
             }
-            .onChange(of: viewModel.activeView) {
-                withAnimation {
-                    proxy.scrollTo(
-                        viewModel.activeView == .profile
-                        ? viewModel.statistics.last?.name
-                        : viewModel.statistics.first?.name
-                        , anchor: .trailing
-                    )
+        }
+    }
+    
+    private var statisticsRow: some View {
+        HStack(alignment: .top) {
+            ForEach(viewModel.statistics) { statistic in
+                StatisticView(statistic: statistic)
+                    .padding(.horizontal, 10)
+                    .id(statistic.name)
+                
+                if statistic.id != viewModel.statistics.last?.id {
+                    Spacer()
                 }
             }
         }
+        .padding(.horizontal)
     }
 }
 

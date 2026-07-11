@@ -44,7 +44,7 @@ struct SettingsView: View {
                         Image(.coingecko)
                             .resizable()
                             .scaledToFit()
-                            .frame(width: .infinity)
+                            .frame(maxWidth: .infinity)
                         
                         Text("This cryptocurrency data used in this app comes from a free API from CoinGecko. Prices may be slightly delayed.")
                     }
