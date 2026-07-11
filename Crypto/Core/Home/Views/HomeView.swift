@@ -22,6 +22,7 @@ struct HomeView: View {
             }
         }
         .environment(viewModel)
+        .onDisappear(perform: viewModel.cancelTasks)
     }
     
     init(context: ModelContext) {
@@ -121,11 +122,7 @@ extension HomeView {
                 .animation(
                     .linear(duration: 1.5),
                     value: viewModel.refreshDegree)
-                .onTapGesture {
-                    Task {
-                        await viewModel.refresh()
-                    }
-                }
+                .onTapGesture(perform: viewModel.refresh)
                 .allowsHitTesting(viewModel.loadingStatus != .refreshing)
         }
         .padding(.horizontal)

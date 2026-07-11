@@ -21,6 +21,7 @@ struct CoinImageView: View {
                     .scaledToFit()
             }
         }
+        .onDisappear(perform: viewModel.cancelTasks)
     }
     
     init(id: String, imageUrl: String) {

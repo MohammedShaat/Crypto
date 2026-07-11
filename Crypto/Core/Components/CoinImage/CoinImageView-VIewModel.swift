@@ -15,6 +15,7 @@ extension CoinImageView {
         let imageUrl: String
         private(set) var image: Data?
         private(set) var loadingStatus = LoadingStatus.idle
+        private var tasks: [Task<Void, Never>] = []
         
         init(id: String, imageUrl: String) {
             self.id = id
@@ -25,7 +26,7 @@ extension CoinImageView {
         
         private func loadImage() {
             loadingStatus = .loading
-            Task {
+            let imageLoadingTask = Task {
                 let result = await coinImageService.getImage(for: id, from: imageUrl)
                 
                 switch result {
@@ -37,6 +38,12 @@ extension CoinImageView {
                     loadingStatus = .loadingFailed("Failed to load image")
                 }
             }
+            tasks.append(imageLoadingTask)
+        }
+        
+        func cancelTasks() {
+            tasks.forEach { $0.cancel() }
+            tasks.removeAll()
         }
     }
 }
