@@ -140,15 +140,25 @@ extension HomeView {
     }
     
     private var profileCoinsList: some View {
-        List {
-            ForEach(viewModel.profileCoins) { coin in
-                NavigationLink(value: coin) {
-                    CoinRowView(coin: coin, showHoldings: true)
+        Group {
+            if viewModel.profileCoins.isEmpty == false {
+                List {
+                    ForEach(viewModel.profileCoins) { coin in
+                        NavigationLink(value: coin) {
+                            CoinRowView(coin: coin, showHoldings: true)
+                        }
+                        .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    }
                 }
-                .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listStyle(.plain)
+            } else {
+                ContentUnavailableView(
+                    "You don't have any crypto coins yet.",
+                    systemImage: "coloncurrencysign",
+                    description: Text("Click on + to add coins")
+                )
             }
         }
-        .listStyle(.plain)
     }
     
     private var marketStatistics: some View {
