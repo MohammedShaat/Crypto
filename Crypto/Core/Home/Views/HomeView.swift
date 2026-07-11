@@ -32,63 +32,69 @@ struct HomeView: View {
 
 extension HomeView {
     private var mainView: some View {
-        VStack {
-            HeaderView(showProfile: viewModel.activeView == .profile) {
-                viewModel.topLeadingButtonTapped()
-            } trailingAction: {
-                withAnimation {
-                    viewModel.switchView()
+        ZStack {
+            Color.theme.background
+                .ignoresSafeArea()
+            
+            VStack {
+                HeaderView(showProfile: viewModel.activeView == .profile) {
+                    viewModel.topLeadingButtonTapped()
+                } trailingAction: {
+                    withAnimation {
+                        viewModel.switchView()
+                    }
                 }
-            }
-            
-            marketStatistics
-            
-            SearchBarView(text: $viewModel.searchText)
-                .padding()
-            
-            categoriesRow
-            
-            Spacer()
-            
-            switch viewModel.loadingStatus {
-            case .idle:
-                Text("Welcome")
-                    .font(.title)
                 
-            case .loading:
-                ProgressView()
+                marketStatistics
                 
-            case .success, .refreshing, .refreshFailed:
-                switch viewModel.activeView {
-                case .coins:
-                    allCoinsList
-                        .transition(.move(edge: .leading))
+                SearchBarView(text: $viewModel.searchText)
+                    .padding()
+                
+                categoriesRow
+                
+                Spacer()
+                
+                switch viewModel.loadingStatus {
+                case .idle:
+                    Text("Welcome")
+                        .font(.title)
                     
-                case .profile:
-                    profileCoinsList
-                        .transition(.move(edge: .trailing))
+                case .loading:
+                    ProgressView()
+                    
+                case .success, .refreshing, .refreshFailed:
+                    switch viewModel.activeView {
+                    case .coins:
+                        allCoinsList
+                            .transition(.move(edge: .leading))
+                        
+                    case .profile:
+                        profileCoinsList
+                            .transition(.move(edge: .trailing))
+                    }
+                    
+                case .loadingFailed(let error):
+                    VStack {
+                        Image(systemName: "server.rack")
+                        Text(error)
+                    }
+                    .font(.title)
                 }
                 
-            case .loadingFailed(let error):
-                VStack {
-                    Image(systemName: "server.rack")
-                    Text(error)
-                }
-                .font(.title)
+                Spacer()
             }
-            
-            Spacer()
-        }
-        .toolbar(.hidden)
-        .sheet(isPresented: $viewModel.showingEditProfile) {
-            EditPortfolioView()
-        }
-        .sheet(isPresented: $viewModel.showingSettingsView) {
-            SettingsView()
-        }
-        .refreshable(action: viewModel.refresh)
-        .navigationDestination(for: Coin.self) { coin in
-            DetailView(coin: coin)
+            .background(.theme.background)
+            .toolbar(.hidden)
+            .sheet(isPresented: $viewModel.showingEditProfile) {
+                EditPortfolioView()
+            }
+            .sheet(isPresented: $viewModel.showingSettingsView) {
+                SettingsView()
+            }
+            .refreshable(action: viewModel.refresh)
+            .navigationDestination(for: Coin.self) { coin in
+                DetailView(coin: coin)
+            }
         }
     }
     
@@ -134,6 +140,7 @@ extension HomeView {
                     CoinRowView(coin: coin, showHoldings: false)
                 }
                 .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listRowBackground(Color.theme.background)
             }
         }
         .listStyle(.plain)
@@ -148,6 +155,7 @@ extension HomeView {
                             CoinRowView(coin: coin, showHoldings: true)
                         }
                         .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .listRowBackground(Color.theme.background)
                     }
                 }
                 .listStyle(.plain)

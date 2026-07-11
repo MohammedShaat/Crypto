@@ -45,6 +45,7 @@ struct EditPortfolioView: View {
                     
                 }
             }
+            .background(.theme.background)
             .navigationTitle("Edit Portfolio")
             .scrollBounceBehavior(.basedOnSize)
             .toolbar {
@@ -147,11 +148,12 @@ extension EditPortfolioView {
     let container = try! ModelContainer(for: LocalCoin.self, configurations: config)
     let context = container.mainContext
     
-    return VStack {
+    VStack {
         
     }
     .sheet(isPresented: .constant(true)) {
         EditPortfolioView()
+            .modelContainer(container)
     }
     .environment(HomeView.ViewModel(context: context))
 }

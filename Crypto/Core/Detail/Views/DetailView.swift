@@ -31,6 +31,7 @@ struct DetailView: View {
                 }
             }
         }
+        .background(.theme.background)
         .navigationTitle(viewModel.coin.name)
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
