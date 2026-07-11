@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cGX-nq-yZG">
+                                <rect key="frame" x="0.0" y="118" width="393" height="666"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="launchLogoTransparent" translatesAutoresizingMaskIntoConstraints="NO" id="omQ-c6-6qA">
+                                        <rect key="frame" x="146.66666666666666" y="283" width="100" height="100"/>
+                                    </imageView>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="omQ-c6-6qA" firstAttribute="centerY" secondItem="cGX-nq-yZG" secondAttribute="centerY" id="2Rr-7A-jKO"/>
+                                    <constraint firstItem="omQ-c6-6qA" firstAttribute="centerX" secondItem="cGX-nq-yZG" secondAttribute="centerX" id="wnN-Xr-FVN"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="Bcu-3y-fUS" firstAttribute="bottom" secondItem="cGX-nq-yZG" secondAttribute="bottom" id="6th-gQ-VyT"/>
+                            <constraint firstItem="cGX-nq-yZG" firstAttribute="leading" secondItem="Bcu-3y-fUS" secondAttribute="leading" id="O3Y-k3-jZ6"/>
+                            <constraint firstItem="cGX-nq-yZG" firstAttribute="top" secondItem="Bcu-3y-fUS" secondAttribute="top" id="UNo-6Y-BSW"/>
+                            <constraint firstItem="Bcu-3y-fUS" firstAttribute="trailing" secondItem="cGX-nq-yZG" secondAttribute="trailing" id="ezR-Cf-gnk"/>
+                            <constraint firstItem="cGX-nq-yZG" firstAttribute="top" secondItem="Bcu-3y-fUS" secondAttribute="top" id="gfy-i4-Agm"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="52.671755725190835" y="374.64788732394368"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="launchLogoTransparent" width="100" height="100"/>
+    </resources>
+</document>
