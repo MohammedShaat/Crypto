@@ -21,6 +21,7 @@ struct CoinImageView: View {
                     .scaledToFit()
             }
         }
+        .onDisappear(perform: viewModel.cancelTasks)
     }
     
     init(id: String, imageUrl: String) {
@@ -34,13 +35,13 @@ struct CoinImageView: View {
             return Image(systemName: "photo.slash")
         case .loading:
             return Image(systemName: "photo.circle.fill")
-        case .success:
+        case .success, .refreshFailed:
             guard let data = viewModel.image, let uiImage = UIImage(data: data) else {
                 return Image(systemName: "")
             }
             return Image(uiImage: uiImage)
             
-        case .failure:
+        case .loadingFailed:
             return Image(systemName: "exclamationmark.triangle.fill")
         }
     }

@@ -11,6 +11,8 @@ import SwiftData
 struct HomeView: View {
     @State private var viewModel: ViewModel
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    
     var body: some View {
         NavigationStack {
             if viewModel.firstLoadingDone {
@@ -20,6 +22,7 @@ struct HomeView: View {
             }
         }
         .environment(viewModel)
+        .onDisappear(perform: viewModel.cancelTasks)
     }
     
     init(context: ModelContext) {
@@ -30,63 +33,69 @@ struct HomeView: View {
 
 extension HomeView {
     private var mainView: some View {
-        VStack {
-            HeaderView(showProfile: viewModel.activeView == .profile) {
-                viewModel.topLeadingButtonTapped()
-            } trailingAction: {
-                withAnimation {
-                    viewModel.switchView()
+        ZStack {
+            Color.theme.background
+                .ignoresSafeArea()
+            
+            VStack {
+                HeaderView(showProfile: viewModel.activeView == .profile) {
+                    viewModel.topLeadingButtonTapped()
+                } trailingAction: {
+                    withAnimation {
+                        viewModel.switchView()
+                    }
                 }
-            }
-            
-            marketStatistics
-            
-            SearchBarView(text: $viewModel.searchText)
-                .padding()
-            
-            categoriesRow
-            
-            Spacer()
-            
-            switch viewModel.loadingStatus {
-            case .idle:
-                Text("Welcome")
-                    .font(.title)
                 
-            case .loading:
-                ProgressView()
+                marketStatistics
                 
-            case .success, .refreshing:
-                switch viewModel.activeView {
-                case .coins:
-                    allCoinsList
-                        .transition(.move(edge: .leading))
+                SearchBarView(text: $viewModel.searchText)
+                    .padding()
+                
+                categoriesRow
+                
+                Spacer()
+                
+                switch viewModel.loadingStatus {
+                case .idle:
+                    Text("Welcome")
+                        .font(.title)
                     
-                case .profile:
-                    profileCoinsList
-                        .transition(.move(edge: .trailing))
+                case .loading:
+                    ProgressView()
+                    
+                case .success, .refreshing, .refreshFailed:
+                    switch viewModel.activeView {
+                    case .coins:
+                        allCoinsList
+                            .transition(.move(edge: .leading))
+                        
+                    case .profile:
+                        profileCoinsList
+                            .transition(.move(edge: .trailing))
+                    }
+                    
+                case .loadingFailed(let error):
+                    VStack {
+                        Image(systemName: "server.rack")
+                        Text(error)
+                    }
+                    .font(.title)
                 }
                 
-            case .failure(let error):
-                VStack {
-                    Image(systemName: "server.rack")
-                    Text(error)
-                }
-                .font(.title)
+                Spacer()
             }
-            
-            Spacer()
-        }
-        .toolbar(.hidden)
-        .sheet(isPresented: $viewModel.showingEditProfile) {
-            EditPortfolioView()
-        }
-        .sheet(isPresented: $viewModel.showingSettingsView) {
-            SettingsView()
-        }
-        .refreshable(action: viewModel.refresh)
-        .navigationDestination(for: Coin.self) { coin in
-            DetailView(coin: coin)
+            .background(.theme.background)
+            .toolbar(.hidden)
+            .sheet(isPresented: $viewModel.showingEditProfile) {
+                EditPortfolioView()
+            }
+            .sheet(isPresented: $viewModel.showingSettingsView) {
+                SettingsView()
+            }
+            .refreshable(action: viewModel.refresh)
+            .navigationDestination(for: Coin.self) { coin in
+                DetailView(coin: coin)
+            }
         }
     }
     
@@ -113,11 +122,7 @@ extension HomeView {
                 .animation(
                     .linear(duration: 1.5),
                     value: viewModel.refreshDegree)
-                .onTapGesture {
-                    Task {
-                        await viewModel.refresh()
-                    }
-                }
+                .onTapGesture(perform: viewModel.refresh)
                 .allowsHitTesting(viewModel.loadingStatus != .refreshing)
         }
         .padding(.horizontal)
@@ -132,46 +137,72 @@ extension HomeView {
                     CoinRowView(coin: coin, showHoldings: false)
                 }
                 .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listRowBackground(Color.theme.background)
             }
         }
         .listStyle(.plain)
     }
     
     private var profileCoinsList: some View {
-        List {
-            ForEach(viewModel.profileCoins) { coin in
-                NavigationLink(value: coin) {
-                    CoinRowView(coin: coin, showHoldings: true)
+        Group {
+            if viewModel.profileCoins.isEmpty == false {
+                List {
+                    ForEach(viewModel.profileCoins) { coin in
+                        NavigationLink(value: coin) {
+                            CoinRowView(coin: coin, showHoldings: true)
+                        }
+                        .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .listRowBackground(Color.theme.background)
+                    }
                 }
-                .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listStyle(.plain)
+            } else {
+                ContentUnavailableView(
+                    "You don't have any crypto coins yet.",
+                    systemImage: "coloncurrencysign",
+                    description: Text("Click on + to add coins")
+                )
             }
         }
-        .listStyle(.plain)
     }
     
     private var marketStatistics: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .top) {
-                    ForEach(viewModel.statistics) { statistic in
-                        StatisticView(statistic: statistic)
-                            .padding(.horizontal, 10)
-                            .id(statistic.name)
+        Group {
+            if horizontalSizeClass == .compact {
+                ScrollViewReader { proxy in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        statisticsRow
+                    }
+                    .onChange(of: viewModel.activeView) {
+                        withAnimation {
+                            proxy.scrollTo(
+                                viewModel.activeView == .profile
+                                ? viewModel.statistics.last?.name
+                                : viewModel.statistics.first?.name
+                                , anchor: .trailing
+                            )
+                        }
                     }
                 }
-                .padding(.horizontal)
+            } else {
+                statisticsRow
             }
-            .onChange(of: viewModel.activeView) {
-                withAnimation {
-                    proxy.scrollTo(
-                        viewModel.activeView == .profile
-                        ? viewModel.statistics.last?.name
-                        : viewModel.statistics.first?.name
-                        , anchor: .trailing
-                    )
+        }
+    }
+    
+    private var statisticsRow: some View {
+        HStack(alignment: .top) {
+            ForEach(viewModel.statistics) { statistic in
+                StatisticView(statistic: statistic)
+                    .padding(.horizontal, 10)
+                    .id(statistic.name)
+                
+                if statistic.id != viewModel.statistics.last?.id {
+                    Spacer()
                 }
             }
         }
+        .padding(.horizontal)
     }
 }
 

@@ -20,9 +20,9 @@ struct DetailView: View {
                         .font(.title)
                 case .loading:
                     ProgressView()
-                case .success, .refreshing:
+                case .success, .refreshing, .refreshFailed:
                     detailsIfno
-                case .failure(let error):
+                case .loadingFailed(let error):
                     VStack {
                         Image(systemName: "server.rack")
                         Text(error)
@@ -31,6 +31,8 @@ struct DetailView: View {
                 }
             }
         }
+        .onDisappear(perform: viewModel.cancelTasks)
+        .background(.theme.background)
         .navigationTitle(viewModel.coin.name)
         .navigationBarTitleDisplayMode(.large)
         .toolbar {

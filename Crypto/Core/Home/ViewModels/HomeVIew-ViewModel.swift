@@ -62,15 +62,18 @@ extension HomeView {
         
         var showingSettingsView = false
         
+        private var tasks: [Task<Void, Never>] = []
+        
         init(context: ModelContext) {
             profileCoinService = ProfileCoinService(context: context)
-            Task {
+            let coinsAndStatisticsTask = Task {
                 async let loadCoinsOp = loadCoins()
                 async let loadMarketStatisticsOp = loadMarketStatistics()
                 _ = await (loadCoinsOp, loadMarketStatisticsOp)
                 firstLoadingDone = true
                 loadProfileCoins()
             }
+            tasks.append(coinsAndStatisticsTask)
         }
         
         
@@ -153,11 +156,14 @@ extension HomeView {
             case .failure(let error):
                 switch error {
                 case .invalidURL:
-                    loadingStatus = .failure("Invalid URL")
+                    loadingStatus = status == .refreshing
+                    ? .refreshFailed("Invalid URL") : .loadingFailed("Invalid URL")
                 case .badResponse:
-                    loadingStatus = .failure("Bad Response")
+                    loadingStatus = status == .refreshing
+                    ? .refreshFailed("Bad Response") : .loadingFailed("Bad Response")
                 case .unknown:
-                    loadingStatus = .failure("Unexpected error occured")
+                    loadingStatus = status == .refreshing
+                    ? .refreshFailed("Unexpected error occured") : .loadingFailed("Unexpected error occured")
                 }
             }
         }
@@ -206,9 +212,13 @@ extension HomeView {
             }
         }
         
-        func refresh() async {
-            await loadCoins(status: .refreshing)
-            await loadMarketStatistics()
+        func refresh() {
+            guard loadingStatus != .refreshing else { return }
+            let refreshTask = Task {
+                await loadCoins(status: .refreshing)
+                await loadMarketStatistics()
+            }
+            tasks.append(refreshTask)
         }
         
         func switchView() {
@@ -256,10 +266,16 @@ extension HomeView {
             showingSaveIcon = true
             emptyTappedCoin()
             
-            Task {
+            let saveAnimationTask =  Task {
                 try? await Task.sleep(for: .seconds(1))
                 showingSaveIcon = false
             }
+            tasks.append(saveAnimationTask)
+        }
+        
+        func cancelTasks() {
+            tasks.forEach { $0.cancel() }
+            tasks.removeAll()
         }
         
         enum ActiveView {

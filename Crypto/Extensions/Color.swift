@@ -18,4 +18,5 @@ struct Theme {
     let green = Color("GreenCustomColor")
     let red = Color("RedCustomColor")
     let secondaryText = Color("SecondaryTextColor")
+    let secondaryBackground = Color("SecondaryBackgroundColor")
 }
